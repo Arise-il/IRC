@@ -11,7 +11,6 @@ private:
 
     std::string     _nickname;
     std::string     _username;
-    std::string     _realname; //ilyas
     bool            _registered;
     bool            _passAccepted;//ilyas
 
@@ -30,8 +29,6 @@ public:
 
     void               setUsername(const std::string& username);//ilyas
     const std::string& getUsername() const;//ilyas
-    void               setRealname(const std::string& realname);//ilyas
-    const std::string& getRealname() const;//ilyas
     void               setPassAccepted(bool value);//ilyas
     bool               isPassAccepted() const;//ilyas
 };

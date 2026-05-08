@@ -1,12 +1,4 @@
-#include "../includes/Server.hpp"
-
-static Server* g_server = NULL;
-
-void signalHandler(int sig) {
-    (void)sig;
-    if (g_server)
-        g_server->stop();
-}
+#include "Bot.hpp"
 
 int isNumber(std::string nbr) {
     for (size_t i = 0; i < nbr.length(); i++)
@@ -40,35 +32,33 @@ int hasSpace(const std::string &str) {
     return (0);
 }
 
-int main(int argc, char** argv) {
-    if (argc != 3)
+int main(int ac, char** av)
+{
+    if (ac != 3)
     {
-        std::cout << "/Usage: ./ircserv <port> <password>" << std::endl;
+        std::cout << "/Usage: ./ircbot <port> <password>" << std::endl;
         return (1);
     }
 
-    if (!isValidPort(argv[1]))
+    if (!isValidPort(av[1]))
     {
         std::cerr << "Invalid Port" << std::endl;
         return (1);
     }
-    
-    int         port = std::atoi(argv[1]);
-    std::string password = argv[2];
+
+    int         port = atoi(av[1]);
+    std::string password = av[2];
 
     if (password.empty() || hasSpace(password)) {
         std::cerr << "Invalid Password" << std::endl;
         return (1);
     }
 
+    Bot bot("127.0.0.1", port, password);
 
-    signal(SIGINT, signalHandler);
-    signal(SIGQUIT, signalHandler);
+    bot.connectToServer();
+    bot.registerBot();
+    bot.run();
 
-    Server server(port, password);
-    g_server = &server;
-
-    server.setupSocket();
-    server.start();
-    return (0);
+    return 0;
 }

@@ -6,7 +6,8 @@
 Server::Server(int port, const std::string& password)
     : _port(port),
       _password(password),
-      _listenFd(-1)
+      _listenFd(-1),
+      _running(true)
 {
     _commandHandler = new CommandHandler(*this);//ilyas
 }
@@ -91,8 +92,6 @@ void Server::acceptNewClient()
 
     Client* newClient = new Client(clientFd);
 
-    //newClient->setRegistered(true); //ilyas
-
     _clients[clientFd] = newClient;
 
     pollfd pfd;
@@ -106,21 +105,29 @@ void Server::acceptNewClient()
               << clientFd << ")\n";
 }
 
+
 void Server::processClientBuffer(Client* client)
 {
+    int fd = client->getFd();
     std::string& buffer = client->getBuffer();
-
     size_t pos;
 
-    while ((pos = buffer.find("\r\n")) != std::string::npos)
+    while ((pos = buffer.find("\r\n")) != std::string::npos
+        || (pos = buffer.find('\n')) != std::string::npos)
     {
         std::string message = buffer.substr(0, pos);
 
-        buffer.erase(0, pos + 2);
+        if (buffer[pos] == '\r')
+            buffer.erase(0, pos + 2);
+        else
+            buffer.erase(0, pos + 1);
 
         std::cout << "Complete message: " << message << std::endl;
 
-        _commandHandler->handle(client, message);//ilyas
+        _commandHandler->handle(client, message);
+
+        if (_clients.find(fd) == _clients.end())
+            return;
     }
 }
 
@@ -202,12 +209,13 @@ void Server::sendNumericReply(int fd, int code,
 
 void Server::start()
 {
-    while (true)
+    while (_running)
     {
         int ready = poll(&_pollFds[0], _pollFds.size(), -1);
         if (ready < 0)
         {
-            std::cerr << "poll() error\n";
+            if (errno != EINTR)
+                std::cerr << "poll() error\n";
             continue;
         }
 
@@ -232,6 +240,26 @@ void Server::start()
         }
     }
 }
+
+void Server::stop() {_running = false;}
+
+void Server::cleanup()
+{
+    std::cout << "Shutting down server..." << std::endl;
+
+    for (std::map<int, Client*>::iterator it = _clients.begin();
+         it != _clients.end(); ++it)
+    {
+        close(it->first);
+        delete it->second;
+    }
+
+    _clients.clear();
+
+    if (_listenFd != -1)
+        close(_listenFd);
+}
+
 //ilyas all of this
 const std::string& Server::getPassword() const {
     return _password;

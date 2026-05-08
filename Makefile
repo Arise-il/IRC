@@ -1,4 +1,5 @@
 NAME = ircserv
+BOT = ircbot
 
 CPPC = c++
 CPPCFLAGS = -Wall -Wextra -Werror -std=c++98
@@ -15,19 +16,25 @@ SRCS = src/main.cpp \
 
 OBJS = $(SRCS:.cpp=.o)
 
-all : $(NAME)
+BOT_SRC = bot/main.cpp bot/Bot.cpp
+BOT_OBJ = $(BOT_SRC:.cpp=.o)
+
+all : $(NAME) $(BOT)
 
 $(NAME) : $(OBJS)
 	$(CPPC) $(CPPCFLAGS) $(OBJS) -o $(NAME)
+
+$(BOT): $(BOT_OBJ)
+	$(CPPC) $(CPPCFLAGS) $(BOT_OBJ) -o $(BOT)
 
 %.o : %.cpp
 	$(CPPC) $(CPPCFLAGS) -c $< -o $@
 
 clean :
-	rm -rf $(OBJS)
+	rm -rf $(OBJS) $(BOT_OBJ)
 
 fclean : clean
-	rm -rf $(NAME)
+	rm -rf $(NAME) $(BOT)
 
 re : fclean all
 

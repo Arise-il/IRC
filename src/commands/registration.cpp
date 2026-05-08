@@ -35,6 +35,7 @@ void cmdPass(Client* client, const std::vector<std::string>& args, Server& serve
         return;
     }
     if (args.empty()) {
+        std::cout << "here1" << std::endl;
         server.sendToClient(client->getFd(), ":ircserv 461 * PASS :Not enough parameters");
         return;
     }
@@ -86,13 +87,8 @@ void cmdUser(Client* client, const std::vector<std::string>& args, Server& serve
         server.sendToClient(client->getFd(), ":ircserv 451 * :You have not registered");
         return;
     }
-    if (args.size() < 4) {
-        server.sendToClient(client->getFd(), ":ircserv 461 " + client->getNickname() + " USER :Not enough parameters");
-        return;
-    }
 
     client->setUsername(args[0]);
-    client->setRealname(args[3]);
     client->setRegistered(true);
 
     std::string nick = client->getNickname();

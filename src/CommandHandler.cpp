@@ -6,7 +6,7 @@
 /*   By: iel-ghou <iel-ghou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/28 22:57:01 by iel-ghou          #+#    #+#             */
-/*   Updated: 2026/04/28 23:04:38 by iel-ghou         ###   ########.fr       */
+/*   Updated: 2026/05/06 16:21:26 by iel-ghou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ CommandHandler::CommandHandler(Server& server) : _server(server) {
     _commands["INVITE"]  = cmdInvite;
     _commands["MODE"]    = cmdMode;
     _commands["PRIVMSG"] = cmdPrivmsg;
+    _commands["privmsg"] = cmdPrivmsg;
     _commands["NOTICE"]  = cmdNotice;
     _commands["PING"]    = cmdPing;
     _commands["QUIT"]    = cmdQuit;
